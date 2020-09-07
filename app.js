@@ -22,6 +22,7 @@ new Vue({
             this.gameInPlay = true;
             this.playerHealth = 100;
             this.monsterHealth = 100;
+            this.actionsLog = [];
         },
 
         playerAttack: function () {
@@ -30,15 +31,16 @@ new Vue({
             this.monsterHealth-=damageToMonster;
             if( this.monsterHealth <= 0 ){
                 let actionFatality = {isPlayer: true, text:`Les has pegado al mounstruo por ${damageToMonster}%, has matado al mounstruo !!!!`}
-                this.monsterHealth = 0;
                 this.registerActionsInLog(actionFatality)
-                this.checkWinner();
+                this.monsterHealth = 0;
+               
             }else{
                 let actionPlayer = {isPlayer: true, text:`Les has pegado al mounstruo por ${damageToMonster}%`}
                 this.registerActionsInLog(actionPlayer)
                 this.monsterAttack();
-               // this.checkWinner();
+               
             }
+            this.checkWinner();
         },
 
         playerSpecialAttack: function () {
@@ -50,17 +52,15 @@ new Vue({
                 let actionFatality = {isPlayer: true, text:`Les has pegado al mounstruo por ${damageSpattack_ToMonster}%
                 con tu ataque especial, has matado al mounstruo !!!!`}
                 this.registerActionsInLog(actionFatality)
-                setTimeout(() => {
-                    this.checkWinner();    
-                }, 500);
+                
                 
             }else { 
                 this.monsterAttack();
             let event = {isPlayer: true, text:`Lanzas Ataque Especial, le has pegado al mounstruo por ${damageSpattack_ToMonster}% `}
             this.registerActionsInLog(event);
-            this.checkWinner();
             }
-            
+            this.checkWinner();
+        
             
           
         },
@@ -82,6 +82,11 @@ new Vue({
         registerActionsInLog(evento) {
             console.log(evento);
             this.actionsLog.unshift(evento);
+         //   debugger;
+
+        },resetHealth() {
+            this.playerHealth = 0;
+            this.monsterHealth = 0;
 
         },
 
@@ -89,6 +94,8 @@ new Vue({
         
         this.actionsLog = [];
         this.gameInPlay = false;
+        this.resetHealth();
+        
      
         
         
@@ -100,19 +107,20 @@ new Vue({
             let damageToPlayer = this.calculateDamage(this.rangeMonsterAttack);
             this.playerHealth-=damageToPlayer
             if(this.playerHealth <= 0){
+                let actionFatalityMonster = {isPlayer: false, text:`el mounstruo te ha pegado por ${damageToPlayer}
+                , el mounstruo te ha matado !!!`}
+                this.registerActionsInLog(actionFatalityMonster)
+                this.playerHealth = 0;
                 
-                this.playerHealth = 0;
-                let actionFatality = {isPlayer: false, text:`el mounstruo te ha pegado por ${damageToPlayer}, el mounstruo te ha matado !!!`}
-                this.registerActionsInLog(actionFatality)
-                this.playerHealth = 0;
-                this.checkWinner();
+                
+                
                 
                 
             }else{
             let actionToLog = {isPlayer: false, text: `El mounstruo te ha pegado por ${damageToPlayer}% `}
             this.registerActionsInLog(actionToLog)
+                }
             this.checkWinner();
-            }
         },
 
         calculateDamage: function (range) {
@@ -121,17 +129,25 @@ new Vue({
          
         },
         checkWinner: function () {
-            if(this.playerHealth == 0){
-                alert(`El ganador es el Mounstruo `);
+            if(this.playerHealth <= 0){
+                if(confirm('El ganador es el Mounstruo,jugar de nuevo? ')){
+                    this.startMatch();
+                }else{
+
+                    this.endMatch();
+                }
                
-                this.endMatch();
                 
-            }else if(this.monsterHealth == 0){
-                alert(`El ganador es el Jugador `);
+            }else if(this.monsterHealth <= 0){
+                if(confirm(`El ganador es el Jugador, jugar otras vez ? `)){
+                    this.startMatch()
+                }else{
+
+                    this.endMatch();
+                }
                 
-                this.endMatch();
             }
-            return false;
+            
         },
         cssEvento(action) {
             //Este return de un objeto es prque vue asi lo requiere, pero ponerlo acá queda mucho mas entendible en el codigo HTML.
