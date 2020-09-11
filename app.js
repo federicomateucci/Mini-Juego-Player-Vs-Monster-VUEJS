@@ -124,8 +124,8 @@ new Vue({
         },
 
         calculateDamage: function (range) {
-            let damage = Math.floor((Math.random() * range[1]) + range[0]);
-            return damage;
+            return Math.max(Math.floor(Math.random()*range[1]) +1, range[0]);
+           
          
         },
         checkWinner: function () {
